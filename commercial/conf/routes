@@ -43,3 +43,11 @@ GET        /commercial/paid                                                     
 # Hosted content
 GET        /commercial/advertiser-content/:campaignName/:pageName               controllers.commercial.HostedContentController.renderLegacyHostedPage(campaignName, pageName)
 GET        /advertiser-content/:campaignName/:pageName                          controllers.commercial.HostedContentController.renderHostedPage(campaignName, pageName)
+
+
+
+
+
+
+# todo: remove
+GET        /testing                          controllers.commercial.HostedContentController.renderCapiHostedPage()

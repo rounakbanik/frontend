@@ -28,7 +28,10 @@ object Dependencies {
   val commonsLang = "commons-lang" % "commons-lang" % "2.4"
   val commonsIo = "commons-io" % "commons-io" % "2.4"
   val cssParser = "net.sourceforge.cssparser" % "cssparser" % "0.9.18"
-  val contentApiClient = "com.gu" %% "content-api-client" % "8.12"
+  val contentApiClient = "com.gu" %% "content-api-client" % "9.4"
+
+  val contentApiScalaModels = "com.gu" % "content-api-models-scala" % "9.18"
+
   val dfpAxis = "com.google.api-ads" % "dfp-axis" % "2.8.0"
   val dispatch = "net.databinder.dispatch" %% "dispatch-core" % "0.11.3"
   val dispatchTest = "net.databinder.dispatch" %% "dispatch-core" % "0.11.3" % Test
