@@ -1,0 +1,37 @@
+FROM java:openjdk-8
+
+#Install sbt
+ENV SBT_VERSION 0.13.11
+RUN \
+  curl -L -o sbt-$SBT_VERSION.deb http://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb && \
+  dpkg -i sbt-$SBT_VERSION.deb && \
+  rm sbt-$SBT_VERSION.deb && \
+  apt-get update && \
+  apt-get install sbt
+
+# Install Node.js
+RUN \
+    curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends build-essential nodejs
+
+# Install grunt
+RUN npm i -g grunt-cli
+
+# Create config files
+RUN mkdir -p /etc/gu/ && echo 'STAGE=DEV' > /etc/gu/install_vars
+
+# Cleaning up after apt-get
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+VOLUME /frontend
+
+WORKDIR /frontend
+
+EXPOSE 9000
+
+# Make prompt prettier
+RUN echo 'export PS1="[🐳 :\h]\w# "' >> /root/.bashrc
+
+RUN echo ">>> Build completed: Start your dev environment with 'docker-compose run --service-ports dev'"
