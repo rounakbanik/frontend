@@ -2,6 +2,7 @@ package common.commercial.hosted
 
 import com.gu.contentapi.client.model.v1.Content
 import com.gu.contentatom.thrift.AtomData
+import conf.Static
 import model.GuardianContentTypes._
 import model.{MetaData, SectionSummary}
 import play.api.libs.json.JsString
@@ -54,9 +55,7 @@ case class HostedVideoPage(
 object HostedVideoPage {
 
   def fromContent(content: Content): Option[HostedVideoPage] = {
-
-
-    val x = for {
+    for {
       campaignId <- content.sectionId map (_.stripPrefix("advertiser-content/"))
       campaignName <- content.sectionName
       hostedTag <- content.tags find (_.paidContentType.contains("HostedContent"))
@@ -68,59 +67,51 @@ object HostedVideoPage {
     } yield {
 
       val video = videoAtom.data.asInstanceOf[AtomData.Media].media
-      val videoVariants = video.assets filter (_.version == video.activeVersion)
+      val videoVariants = video.assets filter (asset => video.activeVersion.contains(asset.version))
       def videoUrl(mimeType: String) = videoVariants.find(_.mimeType.contains(mimeType)).map(_.id) getOrElse ""
 
-      val l = HostedLogo(
-        url = sponsorship.sponsorLogo
-      )
-
-      val c = HostedCampaign(
-        id = campaignId,
-        name = campaignName,
-        owner = sponsorship.sponsorName,
-        logo = l,
-        cssClass = "",
-        logoLink = None
-      )
-
-      val v = HostedVideo(
-        mediaId = campaignId,
-        title = video.title,
-        duration = video.duration.map(_.toInt) getOrElse 0,
-        posterUrl = video.posterUrl getOrElse "",
-        srcUrlMp4 = videoUrl("video/mp4"),
-        srcUrlWebm = videoUrl("video/webm"),
-        srcUrlOgg = videoUrl("video/ogg"),
-        srcM3u8 = videoUrl("video/m3u8")
-      )
-
-      val cta = HostedCallToAction(
-        url = "",
-        image = None,
-        label = None,
-        trackingCode = None,
-        btnText = None
-      )
-
-      val h = HostedVideoPage(
-        campaign = c,
+      HostedVideoPage(
+        campaign = HostedCampaign(
+          id = campaignId,
+          name = campaignName,
+          owner = sponsorship.sponsorName,
+          logo = HostedLogo(
+            url = sponsorship.sponsorLogo
+          ),
+          // todo: standardise css so that only colour varies
+          cssClass = "renault",
+          logoLink = None
+        ),
         pageUrl = content.webUrl,
         pageName = content.webTitle,
         standfirst = content.fields flatMap (_.standfirst) getOrElse "",
-        video = v,
-        cta = cta,
+        video = HostedVideo(
+          mediaId = campaignId,
+          title = video.title,
+          duration = video.duration.map(_.toInt) getOrElse 0,
+          posterUrl = video.posterUrl getOrElse "",
+          srcUrlMp4 = videoUrl("video/mp4"),
+          srcUrlWebm = videoUrl("video/webm"),
+          srcUrlOgg = videoUrl("video/ogg"),
+          srcM3u8 = videoUrl("video/m3u8")
+        ),
+        // todo: from cta atom
+        cta = HostedCallToAction(
+          url = "https://www.renault.co.uk/vehicles/new-vehicles/zoe.html",
+          image = Some(Static("images/commercial/ren_commercial_banner.jpg")),
+          label = Some("Discover Zoe"),
+          trackingCode = Some("explore-renault-zoe-button"),
+          btnText = None
+        ),
+        // todo: missing data
         facebookShareText = None,
+        // todo: missing data
         twitterShareText = None,
+        // todo: missing data
         emailSubjectText = None,
         nextPage = None
       )
-
-      h
-
     }
-
-    x
   }
 }
 
