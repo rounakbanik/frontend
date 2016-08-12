@@ -2,6 +2,7 @@ package common.commercial.hosted
 
 import com.gu.contentapi.client.model.v1.Content
 import com.gu.contentatom.thrift.AtomData
+import common.Logging
 import conf.Static
 import model.GuardianContentTypes._
 import model.{MetaData, SectionSummary}
@@ -52,10 +53,10 @@ case class HostedVideoPage(
   }
 }
 
-object HostedVideoPage {
+object HostedVideoPage extends Logging {
 
   def fromContent(content: Content): Option[HostedVideoPage] = {
-    for {
+    val page = for {
       campaignId <- content.sectionId map (_.stripPrefix("advertiser-content/"))
       campaignName <- content.sectionName
       hostedTag <- content.tags find (_.paidContentType.contains("HostedContent"))
@@ -109,9 +110,14 @@ object HostedVideoPage {
         twitterShareText = None,
         // todo: missing data
         emailSubjectText = None,
+        // todo: related content
         nextPage = None
       )
     }
+
+    if (page.isEmpty) log.error(s"Failed to build HostedVideoPage from $content")
+
+    page
   }
 }
 
